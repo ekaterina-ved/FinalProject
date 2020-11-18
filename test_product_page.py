@@ -5,13 +5,13 @@ import pytest
 import faker
 
 
-@pytest.mark.add_to_basket
+@pytest.mark.need_review
 @pytest.mark.parametrize('link', ["http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer0",
                                   "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer1",
                                   "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer2",
                                   "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer3",
                                   "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer4",
-                                  "http://selenium1py.pythonanywhere.com/coders-at-work_207/?promo=offer5",
+                                  "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer5",
                                   "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer6",
                                   pytest.param(
                                       "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer7"
@@ -28,8 +28,8 @@ class TestGuestAddProduct():
         page.price_is_correct()
 
 
-@pytest.mark.success_message
 class TestSuccessMessageFromBasket():
+    @pytest.mark.xfail
     def test_guest_cant_see_success_message_after_adding_product_to_basket(self, browser):
         link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207"
         page = ProductPage(browser, link)
@@ -43,6 +43,7 @@ class TestSuccessMessageFromBasket():
         page.open()
         page.should_not_be_success_message()
 
+    @pytest.mark.xfail
     def test_message_disappeared_after_adding_product_to_basket(self, browser):
         link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207"
         page = ProductPage(browser, link)
@@ -51,7 +52,6 @@ class TestSuccessMessageFromBasket():
         page.should_not_be_second_success_message()
 
 
-@pytest.mark.login_guest
 class TestLoginFromProductPage():
     def test_guest_should_see_login_link_on_product_page(self, browser):
         link = "http://selenium1py.pythonanywhere.com/catalogue/the-city-and-the-stars_95/"
@@ -59,6 +59,7 @@ class TestLoginFromProductPage():
         page.open()
         page.should_be_login_link()
 
+    @pytest.mark.need_review
     def test_guest_can_go_to_login_page_from_product_page(self, browser):
         link = "http://selenium1py.pythonanywhere.com/catalogue/the-city-and-the-stars_95/"
         page = ProductPage(browser, link)
@@ -66,8 +67,8 @@ class TestLoginFromProductPage():
         page.go_to_login_page()
 
 
-@pytest.mark.guest_check_basket
 class TestBasketFromProductPage():
+    @pytest.mark.need_review
     def test_guest_cant_see_product_in_basket_opened_from_product_page(self, browser):
         link = "http://selenium1py.pythonanywhere.com/catalogue/the-city-and-the-stars_95/"
         page = ProductPage(browser, link)
@@ -78,8 +79,6 @@ class TestBasketFromProductPage():
         basket_page.should_be_text_about_empty_basket()
 
 
-
-@pytest.mark.user_check_basket
 class TestUserAddToBasketFromProductPage():
     @pytest.fixture(scope="function", autouse=True)
     def setup(self, browser):
@@ -90,13 +89,13 @@ class TestUserAddToBasketFromProductPage():
         page.register_new_user(email=f.email(), password=f.email())
         page.should_be_authorized_user()
 
-
     def test_user_cant_see_success_message(self, browser):
         link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207"
         page = ProductPage(browser, link)
         page.open()
         page.should_not_be_success_message()
 
+    @pytest.mark.need_review
     def test_user_can_add_product_to_basket(self, browser):
         link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207"
         page = ProductPage(browser, link)
