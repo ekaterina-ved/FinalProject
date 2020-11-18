@@ -1,6 +1,9 @@
 from .pages.product_page import ProductPage
 from .pages.basket_page import BasketPage
+from .pages.login_page import LoginPage
 import pytest
+import faker
+
 
 @pytest.mark.add_to_basket
 @pytest.mark.parametrize('link', ["http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer0",
@@ -15,7 +18,7 @@ import pytest
                                       , marks=pytest.mark.xfail),
                                   "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer8",
                                   "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer9"])
-class TestAddProduct():
+class TestGuestAddProduct():
     def test_guest_can_add_product_to_basket(self, browser, link):
         page = ProductPage(browser, link)
         page.open()
@@ -47,6 +50,7 @@ class TestSuccessMessageFromBasket():
         page.add_product_to_basket()
         page.should_not_be_second_success_message()
 
+
 @pytest.mark.login_guest
 class TestLoginFromProductPage():
     def test_guest_should_see_login_link_on_product_page(self, browser):
@@ -61,7 +65,8 @@ class TestLoginFromProductPage():
         page.open()
         page.go_to_login_page()
 
-@pytest.mark.empty_basket
+
+@pytest.mark.guest_check_basket
 class TestBasketFromProductPage():
     def test_guest_cant_see_product_in_basket_opened_from_product_page(self, browser):
         link = "http://selenium1py.pythonanywhere.com/catalogue/the-city-and-the-stars_95/"
@@ -71,3 +76,31 @@ class TestBasketFromProductPage():
         basket_page = BasketPage(browser, browser.current_url)
         basket_page.should_be_zero_amount()
         basket_page.should_be_text_about_empty_basket()
+
+
+
+@pytest.mark.user_check_basket
+class TestUserAddToBasketFromProductPage():
+    @pytest.fixture(scope="function", autouse=True)
+    def setup(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/accounts/login/"
+        page = LoginPage(browser, link)
+        page.open()
+        f = faker.Faker()
+        page.register_new_user(email=f.email(), password=f.email())
+        page.should_be_authorized_user()
+
+
+    def test_user_cant_see_success_message(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207"
+        page = ProductPage(browser, link)
+        page.open()
+        page.should_not_be_success_message()
+
+    def test_user_can_add_product_to_basket(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207"
+        page = ProductPage(browser, link)
+        page.open()
+        page.add_product_to_basket()
+        page.name_is_correct()
+        page.price_is_correct()
